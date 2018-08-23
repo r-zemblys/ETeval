@@ -20,11 +20,11 @@ python run_eval.py --config job.json
 For an example see `example_job.json`. All jobs files need to be a list of the following json objects:
 ```sh
 {
-    "root": "etdata", 					# Root folder of the data
-    "gt": "lund2013_npy", 				# Ground truth dataset
-    "pr": "lund2013_npy_gazeNet", 		# Test dataset
+    "root": "etdata", 			# Root folder of the data
+    "gt": "lund2013_npy", 		# Ground truth dataset
+    "pr": "lund2013_npy_gazeNet", 	# Test dataset
     "dataset": "lund2013-image-test",	# Dataset label
-    "alg": "gazeNet"					# Algorithm label
+    "alg": "gazeNet"			# Algorithm label
 }
 ```
 For each job, ETeval will output scores for fixations, saccades and PSOs and generate a csv file with the results in your test data folder. 
