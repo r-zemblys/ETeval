@@ -1,0 +1,9 @@
+[
+    {
+        "root": "etdata", 
+        "gt": "lund2013_npy", 
+        "pr": "lund2013_npy_gazeNet", 
+        "dataset": "lund2013-image-test",
+        "alg": "gazeNet"
+    }
+]
