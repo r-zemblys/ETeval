@@ -1,11 +1,15 @@
 # ETeval
 Eye-movement event matching procedure and computation of the event level Cohen's Kappa as described in: 
 ```sh
-@article{zemblys2018gazeNet,
-  title={gazeNet: End-to-end eye-movement event detection with deep neural networks},
-  author={Zemblys, Raimondas and Niehorster, Diederick C and Holmqvist, Kenneth},
-  journal={Behavior research methods},
-  year={2018},
+@Article{zemblys2019gazenet,
+  author    = {Zemblys, Raimondas and Niehorster, Diederick C and Holmqvist, Kenneth},
+  title     = {gazeNet: End-to-end eye-movement event detection with deep neural networks},
+  journal   = {Behavior research methods},
+  year      = {2019},
+  volume    = {51},
+  number    = {2},
+  pages     = {840--864},
+  publisher = {Springer},
 }
 ```
 
@@ -55,3 +59,22 @@ TODO:
 
 ### Python environment
 ETeval was developed and tested using Python 2.7, however it should also work if using Python 3.x. Code requires `numpy`, `scipy`, `pandas`, `matplotlib`, `scikit-learn` and `tqdm` libraries.
+
+### Handling unmatched negative class
+In the original paper unmatched negative events in the binary evaluation were treated as true negatives. The following paper describes and compares three approaches to binary event-level agreement scoring.
+```sh
+@Article{zemblys2020binary,
+  author    = {Zemblys, Raimondas and Niehorster, Diederick C and Holmqvist, Kenneth},
+  title     = {Evaluating three approaches to binary event-level agreement scoring. A reply to Friedman (2020)},
+  journal   = {Behavior research methods},
+  year      = {2020},
+  publisher = {Springer},
+}
+```
+To use one of the two alternative methods, run script with:
+```sh
+python run_eval.py --config job.json --exp EXP
+```
+where ```EXP``` is one the the following:
+- ```ignore``` - removes unmatched negatives
+- ```hard``` - converts unmatched negatives to errors
