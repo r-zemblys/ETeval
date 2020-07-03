@@ -1,13 +1,12 @@
-#!/usr/bin/env python2
-# -*- coding: utf-8 -*-
 """
 @author: rz
-@emai
+@email: r.zemblys@tf.su.lt
 """
 
 import numpy as np
 
-def round_up_to_odd(f, min_val = 3):
+
+def round_up_to_odd(f, min_val=3):
     """Rounds input value up to nearest odd number.
     Parameters:
         f       --  input value
@@ -22,6 +21,5 @@ def round_up_to_odd(f, min_val = 3):
 
 def rolling_window(a, window):
     shape = a.shape[:-1] + (a.shape[-1] - window + 1, window)
-    strides = a.strides + (a.strides[-1],)
+    strides = a.strides + (a.strides[-1], )
     return np.lib.stride_tricks.as_strided(a, shape=shape, strides=strides)
-
