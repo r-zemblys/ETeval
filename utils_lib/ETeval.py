@@ -34,7 +34,7 @@ def convertToOneHot(vector, num_classes=None):
     return result.astype(int)
 
 #%%
-def calc_evt_overlap(etdata_gt, etdata_pr):
+def calc_evt_overlap(etdata_gt, etdata_pr, mode=None):
     '''Calculates event overlaps.
     Parameters:
         etdata_gt   --  instance of ETData containing ground truth data
@@ -72,17 +72,32 @@ def calc_evt_overlap(etdata_gt, etdata_pr):
     set_gt = set(etdata_gt.evt.index.values) - set(evt_gt.index.values)
     set_pr = set(etdata_pr.evt.index.values) - set(evt_pr.index.values)
 
-    evt_gt = pd.concat((evt_gt, etdata_gt.evt.loc[set_gt, 'evt']))
-    evt_pr = pd.concat((evt_pr, pd.DataFrame(np.zeros(len(set_gt)))))
+    #non matched events
+    evt_nm = np.vstack([
+        np.array([etdata_gt.evt.loc[set_gt, 'evt'].values,
+                  np.full(len(set_gt), np.nan)]).T,
+        np.array([np.full(len(set_pr), np.nan),
+                  etdata_pr.evt.loc[set_pr, 'evt'].values]).T,
+    ])
 
-    evt_gt = pd.concat((evt_gt, pd.DataFrame(np.zeros(len(set_pr)))))
-    evt_pr = pd.concat((evt_pr, etdata_pr.evt.loc[set_pr, 'evt']))
+    mask = np.isfinite(evt_nm)
 
-    return overlap_events.values, np.squeeze(evt_gt.values.astype(np.int32)), np.squeeze(evt_pr.values.astype(np.int32))
+    if mode == 'hard':
+        evt_nm[~mask] = 1-evt_nm[mask]
+    else:
+        evt_nm[~mask] = 0
+        if mode == 'ignore':
+            _mask = evt_nm.sum(axis=1)==0
+            evt_nm = evt_nm[~_mask]
+
+    evt_eval = np.vstack([evt_gt.values, evt_pr.values]).T
+    evt_eval = np.vstack([evt_eval, evt_nm]).astype(np.int32)
+
+    return overlap_events.values, evt_eval[:,0], evt_eval[:,1]
 
 
 #%%
-def eval_evt(etdata_gt, etdata_pr, num_classes):
+def eval_evt(etdata_gt, etdata_pr, num_classes, mode=None):
     #calculate events if not yet calculated
     if etdata_gt.evt is None:
         etdata_gt.calc_evt(fast=True)
@@ -112,7 +127,7 @@ def eval_evt(etdata_gt, etdata_pr, num_classes):
         _etdata_pr.calc_evt(fast=True)
 
         #calculates overlap, excludes "unknown" class and calculates KE
-        evt_overlap, evt_gt, evt_pr = calc_evt_overlap(_etdata_gt, _etdata_pr)
+        evt_overlap, evt_gt, evt_pr = calc_evt_overlap(_etdata_gt, _etdata_pr, mode=mode)
         mask = (evt_gt==255) & (evt_pr==255)
         evt_gt = evt_gt[~mask]
         evt_pr = evt_pr[~mask]

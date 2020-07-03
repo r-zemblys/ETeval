@@ -31,6 +31,8 @@ def get_arguments():
     parser = argparse.ArgumentParser(description='ETeval')
     parser.add_argument('--config', type=str, default='example_job.json',
                         help='JSON file with the experiment data description')
+    parser.add_argument('--exp', type=str, default=None,
+                        help='Experiment')
 
     return parser.parse_args()
 
@@ -60,9 +62,10 @@ classes = [
 class_mapper = {k:v for k, v in zip (classes, np.arange(len(classes)))}
 
 #%% code
-
+eval_mode = args.exp
 for _data in data:
-    fpath_rez = '%s/%s/%s_meta.csv'%(_data['root'], _data['pr'], _data['alg'])
+    _suffix = 'dev' if eval_mode is None else '%s_dev' % eval_mode
+    fpath_rez = '%s/%s/%s_%s.csv'%(_data['root'], _data['pr'], _data['alg'], _suffix)
     print (fpath_rez)
     fpath_log = '%s/%s/%s-%s.log'%(_data['root'], _data['pr'], _data['alg'],
                                    datetime.now().strftime('%Y-%m-%d_%H-%M-%S'))
@@ -107,7 +110,7 @@ for _data in data:
         _etdata_pr.data['evt'] = class_map_func(_etdata_pr.data['evt'], class_mapper)
 
         #evaluate per trial
-        ke, (evt_overlap, _evt_gt, _evt_pr) = eval_evt(_etdata_gt, _etdata_pr, len(classes))
+        ke, (evt_overlap, _evt_gt, _evt_pr) = eval_evt(_etdata_gt, _etdata_pr, len(classes), mode=eval_mode)
         flabel = fpath.replace(ddir, '')
         #save only fixation, saccade and pso
         rez.append((_data['dataset'], _data['alg'], flabel) + tuple(ke[:3]) )
@@ -126,7 +129,7 @@ for _data in data:
     etdata_pr_meta = np.concatenate(etdata_pr_meta)
     _etdata_gt.load(etdata_gt_meta, **{'source':'array'})
     _etdata_pr.load(etdata_pr_meta, **{'source':'array'})
-    ke, (evt_overlap, _evt_gt, _evt_pr) = eval_evt(_etdata_gt, _etdata_pr, len(classes))
+    ke, (evt_overlap, _evt_gt, _evt_pr) = eval_evt(_etdata_gt, _etdata_pr, len(classes), mode=eval_mode)
 
     #save only fixation, saccade and pso
     rez.append((_data['dataset'], _data['alg'], 'meta') + tuple(ke[:3]) )
